@@ -8,6 +8,7 @@ from rest_framework import response
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 import uuid
+from django.db import IntegrityError, transaction
 
 class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
@@ -17,19 +18,19 @@ class SurveyViewSet(viewsets.ModelViewSet):
         survey = self.get_object()
         data = request.data
         user = request.user
+        with transaction.atomic():
+            resp = Response(survey=survey, user=user, uuid=uuid.uuid4().hex)
+            resp.save()
 
-        resp = Response(survey=survey, user=user, uuid=uuid.uuid4().hex)
-        resp.save()
+            for field_name, field_value in data.items():
+                if field_name.startswith("question_"):
+                    question_id = int(field_name.split("_")[1])
+                    question = Question.objects.get(pk=question_id)
 
-        for field_name, field_value in data.items():
-            if field_name.startswith("question_"):
-                question_id = int(field_name.split("_")[1])
-                question = Question.objects.get(pk=question_id)
-
-                answer = Answer(question=question)
-                answer.body = field_value
-                answer.response = resp
-                answer.save()
+                    answer = Answer(question=question)
+                    answer.body = field_value
+                    answer.response = resp
+                    answer.save()
 
 
 class UserViewSet(viewsets.ModelViewSet):
