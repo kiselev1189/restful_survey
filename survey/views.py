@@ -3,7 +3,8 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 import uuid
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from rest_framework import status
+import rest_framework.response
 from .serializers import SurveySerializer, QuestionSerializer, ResponseSerializer, UserSerializer, AnswerSerializer
 from .models import Survey, Question, User, Response, Answer
 
@@ -32,6 +33,9 @@ class SurveyViewSet(viewsets.ModelViewSet):
                     except:
                         print(field_name, field_value, question.question_type)
 
+            resp_serializer = ResponseSerializer(resp, context={"request":request})
+
+            return rest_framework.response.Response(resp_serializer.data, status=status.HTTP_201_CREATED)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
