@@ -7,6 +7,7 @@ from rest_framework import status
 import rest_framework.response
 from .serializers import SurveySerializer, QuestionSerializer, ResponseSerializer, UserSerializer, AnswerSerializer
 from .models import Survey, Question, User, Response, Answer
+from django.core.exceptions import ValidationError
 
 class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
@@ -29,10 +30,11 @@ class SurveyViewSet(viewsets.ModelViewSet):
                     answer.body = field_value
                     answer.response = resp
                     try:
-                        answer.save()
-                    except:
+                        answer.clean()
+                    except ValidationError as e:
                         print(field_name, field_value, question.question_type)
-
+                        return rest_framework.response.Response(status=status.HTTP_400_BAD_REQUEST)
+                    answer.save()
             resp_serializer = ResponseSerializer(resp, context={"request":request})
 
             return rest_framework.response.Response(resp_serializer.data, status=status.HTTP_201_CREATED)
