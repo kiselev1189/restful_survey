@@ -15,7 +15,7 @@ class QuestionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('question_type', 'text', 'survey')
+        fields = ('question_type', 'text', 'survey', 'label')
 
 class ResponseSerializer(serializers.HyperlinkedModelSerializer):
     survey = serializers.HyperlinkedRelatedField(many=False, view_name='survey-detail', read_only=True)

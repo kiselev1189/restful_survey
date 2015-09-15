@@ -1,14 +1,11 @@
-from django.shortcuts import render
-from rest_framework import viewsets, generics
-from .serializers import SurveySerializer, QuestionSerializer, ResponseSerializer, UserSerializer, AnswerSerializer
-from .models import Survey, Question, User, Response, Answer
-from rest_framework import mixins
-from rest_framework import generics
-from rest_framework import response
+from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 import uuid
-from django.db import IntegrityError, transaction
+from django.db import transaction
+from django.http import HttpResponseRedirect
+from .serializers import SurveySerializer, QuestionSerializer, ResponseSerializer, UserSerializer, AnswerSerializer
+from .models import Survey, Question, User, Response, Answer
 
 class SurveyViewSet(viewsets.ModelViewSet):
     queryset = Survey.objects.all()
@@ -24,13 +21,16 @@ class SurveyViewSet(viewsets.ModelViewSet):
 
             for field_name, field_value in data.items():
                 if field_name.startswith("question_"):
-                    question_id = int(field_name.split("_")[1])
-                    question = Question.objects.get(pk=question_id)
-
+                    question_label = field_name.split("_")[1]
+                    question = Question.objects.get(label=question_label, survey=survey)
+                    print(question_label)
                     answer = Answer(question=question)
                     answer.body = field_value
                     answer.response = resp
-                    answer.save()
+                    try:
+                        answer.save()
+                    except:
+                        print(field_name, field_value, question.question_type)
 
 
 class UserViewSet(viewsets.ModelViewSet):

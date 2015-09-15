@@ -12,11 +12,6 @@ class Survey(models.Model):     # collection of unique questions
     name = models.CharField(max_length=400)
     description = models.TextField()
 
-    def questions(self):
-        if self.pk:
-            return Question.objects.filter(survey=self.pk)
-        else:
-            return None
 
 class Question(models.Model):       # linked to it's survey
     PHONE = 'phone'
@@ -35,6 +30,7 @@ class Question(models.Model):       # linked to it's survey
     question_type = models.CharField(max_length=200, choices=QUESTION_TYPES, default=TEXT)
     text = models.TextField()
     survey = models.ForeignKey(Survey, related_name='questions')
+    label = models.CharField(max_length=100)
 
     def save(self, *args, **kwargs):
         super(Question, self).save(*args, **kwargs)

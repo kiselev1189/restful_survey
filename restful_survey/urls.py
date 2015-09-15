@@ -18,17 +18,17 @@ from django.contrib import admin
 from survey import urls as survey_urls
 from rest_framework import routers
 from survey import views
-
 router = routers.DefaultRouter()
 router.register('survey_list', views.SurveyViewSet)
 router.register('question_list', views.QuestionViewSet)
 router.register('response_list', views.ResponseViewSet, base_name='Response')
 router.register('user_list', views.UserViewSet)
 router.register('answer_list', views.AnswerViewSet)
+survey_app_router = router
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include(router.urls)),
+    url(r'^', include(survey_app_router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 ]
