@@ -50,9 +50,11 @@ class Answer(models.Model):
     updated = models.DateTimeField(auto_now=True)
     body = models.TextField(blank=True, null=True)
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         validator = Question.QUESTION_VALIDATORS[self.question.question_type]
         validator(self.body)
+
+    def save(self, *args, **kwargs):
         super(Answer, self).save(*args, **kwargs)
 
 
