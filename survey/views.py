@@ -24,8 +24,8 @@ class SurveyViewSet(viewsets.ModelViewSet):
             for field_name, field_value in data.items():
                 if field_name.startswith("question_"):
                     question_label = field_name.split("_")[1]
-                    question = Question.objects.get(label=question_label, survey=survey)
                     print(question_label)
+                    question = Question.objects.get(label=question_label, survey=survey)
                     answer = Answer(question=question)
                     answer.body = field_value
                     answer.response = resp
